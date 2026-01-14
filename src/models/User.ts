@@ -1,4 +1,4 @@
-// src/models/User.ts
+//los objetos son un reflejo de los DTOs de mi backend
 
 // Lo que recibimos del Backend al loguearnos
 export interface AuthResponse {
@@ -21,7 +21,7 @@ export interface RegisterDto {
     userName: string;
     password: string;
     confirmPassword: string;
-    role: number; // 0 = Admin, 1 = User (según tu Enum en C#)
+    role: number; // 0 = Admin, 1 = User
 }
 
 // Usuario decodificado (opcional por ahora, para mostrar info en pantalla)

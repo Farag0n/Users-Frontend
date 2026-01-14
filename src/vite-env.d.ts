@@ -1,4 +1,4 @@
-//Este archivo permite que el main.ts interprete el App.vue
+//Este archivo permite que el main.ts interprete el App.vue y todos los archivos .vue
 
 /// <reference types="vite/client" />
 

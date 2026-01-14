@@ -1,12 +1,16 @@
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref } from 'vue';//para es una funcion de vue que permite usar una logica reactiva
+import axios from 'axios';//biblioteca para peticiones http para permitir la comunicacion con APIs RESTful
 import type { LoginDto, RegisterDto, User } from '../models/User';
 
-// 1. Configuración base de Axios (Ajusta el puerto según tu backend)
+//configuración base de Axios
 const api = axios.create({
     baseURL: 'http://localhost:5000/api/Auth', // La URL base de tu controlador Auth
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json'//el headers es para los metadatos de las peticiones HTTP, 
+        // esta el Content-Type(para el tipo de contenido de la peticion)
+        //el User-Agent (quien lo envia)
+        //como debe responder (Accept)
+        //si esta autorizado (Authorization)
     }
 });
 
@@ -38,6 +42,7 @@ export async function login(credentials: LoginDto): Promise<boolean> {
         return false;
     }
 }
+const u = "hola"
 
 // --- REGISTER ---
 export async function register(data: RegisterDto): Promise<boolean> {
