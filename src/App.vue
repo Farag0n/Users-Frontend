@@ -2,7 +2,7 @@
 <script setup lang="ts"> //Etiqueta moderna para poner codigo Ts
 
 import { ref, onMounted } from 'vue';
-import Login from './views/Login.vue';       // Importa la pagina de login
+import Login from './views/LoginView.vue';       // Importa la pagina de login
 import Register from './views/Register.vue'; // Importa la pagina de register
 import { currentUser, logout, checkSession,} from './services/AuthService';   // Importa la logica de auth ya que el App.vue es el orquestador y main.ts es el arranque
 
@@ -20,7 +20,7 @@ onMounted(() => {
 </script>
 
 <!-- en el template se suelen poner contenedores y cosas que rara vez van a cambiar como el Header/Footer y el router view remplaza el currentPage -->
- <!-- router-view es un contenedor dinamico -->
+<!-- router-view es un contenedor dinamico -->
 <template>
   <div>
     <h1>Login, Register & Logout</h1>
