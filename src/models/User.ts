@@ -10,3 +10,20 @@ export interface UserResponseDto {
     userRole: UserRole;
     isDeleted: boolean;
 };
+
+export interface UserUpdateDto {
+    name: string;
+    lastName: string;
+    email: string;
+    userName: string;
+    password: string;
+}
+
+export interface UserCreateDto {
+    name: string;
+    lastName: string;
+    email: string;
+    userName: string;
+    password: string;
+    userRole: UserRole;
+}

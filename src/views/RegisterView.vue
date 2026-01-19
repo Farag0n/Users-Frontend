@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { register } from '../services/AuthService';
-import { UserRole } from '../models/User'; // Si creaste un enum, si no usa numeros
+import { useRouter } from 'vue-router';
+import authService from '../services/AuthService';
 
-const emit = defineEmits(['go-to-login']);
+const router = useRouter();
 
 // Campos requeridos por el backend
 const form = ref({
@@ -13,7 +13,7 @@ const form = ref({
     userName: '',
     password: '',
     confirmPassword: '',
-    role: 1 // Por defecto 1 (User), asumiendo que 0 es Admin
+    role: 1 // Por defecto 1 (User)
 });
 
 const feedback = ref('');
@@ -24,12 +24,14 @@ const handleRegister = async () => {
         return;
     }
 
-    const success = await register(form.value);
+    const success = await authService.register(form.value);
     
     if (success) {
         feedback.value = '¡Registrado! Ahora inicia sesión.';
-        // Limpiar formulario...
-        emit('go-to-login'); // Opcional: Redirigir automáticamente
+        // Redirigir al login después de un registro exitoso
+        setTimeout(() => {
+            router.push({ name: 'login' });
+        }, 1500);
     } else {
         feedback.value = 'Error al registrar. Revisa la consola.';
     }
@@ -56,7 +58,7 @@ const handleRegister = async () => {
         </form>
         
         <p class="msg">{{ feedback }}</p>
-        <button @click="emit('go-to-login')">Volver al Login</button>
+        <router-link to="/login">Volver al Login</router-link>
     </div>
 </template>
 

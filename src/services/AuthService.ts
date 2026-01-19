@@ -1,72 +1,66 @@
-import { ref } from 'vue';//para es una funcion de vue que permite usar una logica reactiva
-import axios from 'axios';//biblioteca para peticiones http para permitir la comunicacion con APIs RESTful
-import type { LoginDto, RegisterDto, User } from '../models/User';
+import { ref } from 'vue';
+import http from './http';
+import type { LoginDto, RegisterDto } from '@/models/Auth';
 
-//configuración base de Axios
-const api = axios.create({
-    baseURL: 'http://localhost:5000/api/Auth', // La URL base de tu controlador Auth
-    headers: {
-        'Content-Type': 'application/json'//el headers es para los metadatos de las peticiones HTTP, 
-        // esta el Content-Type(para el tipo de contenido de la peticion)
-        //el User-Agent (quien lo envia)
-        //como debe responder (Accept)
-        //si esta autorizado (Authorization)
+class AuthService {
+    // Estado reactivo del usuario actual (persistido)
+    currentUser = ref<string | null>(localStorage.getItem('userEmail'));
+    isAuthenticated = ref(!!localStorage.getItem('token'));
+
+    async login(credentials: LoginDto): Promise<boolean> {
+        try {
+            // Usa la instancia http configurada (usa .env VITE_API_URL)
+            const response = await http.post('/Auth/login', credentials);
+
+            const { accessToken, refreshToken } = response.data;
+
+            if (accessToken) {
+                localStorage.setItem('token', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+                localStorage.setItem('userEmail', credentials.email);
+
+                this.currentUser.value = credentials.email;
+                this.isAuthenticated.value = true;
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            console.error("Error login:", error);
+            return false;
+        }
     }
-});
 
-// Estado reactivo del usuario actual
-export const currentUser = ref<User | null>(null);
+    async register(data: RegisterDto): Promise<boolean> {
+        try {
+            await http.post('/Auth/register', data);
+            return true;
+        } catch (error) {
+            console.error("Error registro:", error);
+            return false;
+        }
+    }
 
-// --- LOGIN ---
-export async function login(credentials: LoginDto): Promise<boolean> {
-    try {
-        // Hacemos la petición POST al backend
-        const response = await api.post('/login', credentials);
-        
-        // Si llegamos aquí, la respuesta fue 200 OK
-        const { accessToken, refreshToken } = response.data;
+    // Check session simple
+    checkSession() {
+        const token = localStorage.getItem('token');
+        if (token) {
+            this.isAuthenticated.value = true;
+            this.currentUser.value = localStorage.getItem('userEmail');
+        } else {
+            this.logout();
+        }
+    }
 
-        // Guardamos sesión
-        const user: User = { email: credentials.email, token: accessToken };
-        currentUser.value = user;
-
-        // Guardamos en LocalStorage para persistencia
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('refreshToken', refreshToken); // Importante para después
-
-        console.log("Login exitoso:", response.data.message);
-        return true;
-
-    } catch (error: any) {
-        console.error("Error en login:", error.response?.data?.message || error.message);
-        return false;
+    logout() {
+        localStorage.clear();
+        this.currentUser.value = null;
+        this.isAuthenticated.value = false;
+        // La redirección se debe manejar en el componente o router, 
+        // pero para logout global a veces es útil tenerlo aqui o usar un bus.
+        window.location.href = '/login';
     }
 }
-const u = "hola"
 
-// --- REGISTER ---
-export async function register(data: RegisterDto): Promise<boolean> {
-    try {
-        await api.post('/register', data);
-        console.log("Registro exitoso, ahora puedes loguearte.");
-        return true;
-    } catch (error: any) {
-        console.error("Error en registro:", error.response?.data?.message || error.message);
-        return false;
-    }
-}
-
-// --- LOGOUT ---
-export const logout = () => {
-    currentUser.value = null;
-    localStorage.removeItem('user');
-    localStorage.removeItem('refreshToken');
-};
-
-// --- CHECK SESSION ---
-export const checkSession = () => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-        currentUser.value = JSON.parse(storedUser);
-    }
-};
+// Exportamos una única instancia (Singleton)
+const authService = new AuthService();
+export default authService;
